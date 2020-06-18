@@ -1,0 +1,38 @@
+# Running on Ubuntu 18.04 (aws/codebuild/standard:1.0)
+# https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/1.0/Dockerfile
+version: 0.2
+
+# You can securely access your environment 
+# variables from your buildspec.
+#
+# env:
+#   parameter-store:
+#     MY_VAR: "/revolv_5eeb2b6cb3bf090012b8d149/ci/env/MY_VAR"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t $REVOLV_REPOSITORY_URI:latest -t $REVOLV_REPOSITORY_URI:$IMAGE_TAG .
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      # Required by production Fargate tasks
+      - docker push $REVOLV_REPOSITORY_URI:$IMAGE_TAG
+      # Required by pre-deploy Fargate tasks
+      - docker push $REVOLV_REPOSITORY_URI:latest
+      # Required by Fargate
+      - echo Writing image definitions file...
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$REVOLV_CONTAINER_NAME" "$REVOLV_REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
+# Required by Fargate
+artifacts:
+    files: imagedefinitions.json
