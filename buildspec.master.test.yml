@@ -1,0 +1,30 @@
+# Running on Ubuntu 18.04 (aws/codebuild/standard:1.0)
+# https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/1.0/Dockerfile
+version: 0.2
+
+# You can securely access your environment 
+# variables from your buildspec.
+#
+# env:
+#   parameter-store:
+#     MY_VAR: "/revolv_5eeb2b6cb3bf090012b8d149/ci/env/MY_VAR"
+
+phases:
+  pre_build:
+    commands:
+      - echo No pre test commands
+  build:
+    commands:
+      # Using `docker-compose run` to run your tests
+      # is probably the best way to set up your 
+      # application with all their dependencies 
+      # and environment variables.
+      # 
+      # See: https://docs.docker.com/compose/reference/run/
+      #
+      # To access your environment variables in your compose file see:
+      # https://docs.docker.com/compose/environment-variables/#pass-environment-variables-to-containers
+      - npm test
+  post_build:
+    commands:
+      - echo No post test commands
