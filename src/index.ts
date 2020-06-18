@@ -9,4 +9,4 @@ app.get("/", (_req, res) => {
 
 app.listen(port)
 
-console.log(`Running on http://localhost:${port}`)
+console.log(`Running on http://localhost:${port} - ${process.env.B}`)
