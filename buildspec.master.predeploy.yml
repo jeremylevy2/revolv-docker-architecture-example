@@ -16,9 +16,6 @@ env:
     REVOLV_WAITER_MAX_RETRIES: 6
 
 phases:
-  pre_build:
-    commands:
-      - echo POPO
   build:
     commands:
       # The pre-deploy command is set in your 
